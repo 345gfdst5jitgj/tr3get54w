@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL // GAME STORAGE MATRIX Mk.2</title>
+    <title>GAME TERMINAL</title>
     <style>
         :root {
             --matrix-green: #00ff66;
-            --matrix-glow: rgba(0, 255, 102, 0.35);
             --bg-dark: #020403;
-            --panel-bg: rgba(6, 12, 8, 0.92);
         }
 
         * {
@@ -29,67 +27,40 @@
             align-items: center;
         }
 
-        /* 矩阵高频粒子背景 */
         #canvas-matrix {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1;
         }
 
-        /* 工业物理扫描线 */
         .crt-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
             background-size: 100% 4px;
             z-index: 2;
             pointer-events: none;
         }
 
-        /* 硬核军工卡片外框 */
         .terminal-container {
             position: relative;
             z-index: 3;
-            background: var(--panel-bg);
+            background: rgba(6, 12, 8, 0.95);
             border: 2px solid var(--matrix-green);
-            box-shadow: 0 0 35px var(--matrix-glow), inset 0 0 20px rgba(0, 255, 102, 0.1);
-            border-radius: 2px;
+            box-shadow: 0 0 35px rgba(0, 255, 102, 0.35);
             padding: 40px;
-            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: all 0.3s ease-in-out;
         }
 
-        /* 机械外框四个角的夹角点缀 */
-        .terminal-container::before, .terminal-container::after {
-            content: '';
-            position: absolute;
-            width: 12px; height: 12px;
-            border: 3px solid var(--matrix-green);
-        }
-        .terminal-container::before { top: -6px; left: -6px; border-right: 0; border-bottom: 0; }
-        .terminal-container::after { bottom: -6px; right: -6px; border-left: 0; border-top: 0; }
-
-        /* --- 1. 密码验证控制台 --- */
         #auth-panel {
             width: 440px;
             text-align: center;
         }
 
-        .system-tag {
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            color: rgba(0, 255, 102, 0.5);
-            margin-bottom: 10px;
-            text-align: left;
-        }
-
         .hud-title {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 900;
             letter-spacing: 5px;
-            text-shadow: 0 0 8px var(--matrix-glow);
             margin-bottom: 30px;
             text-align: left;
             border-left: 4px solid var(--matrix-green);
@@ -107,13 +78,11 @@
             text-align: center;
             outline: none;
             margin-bottom: 25px;
-            border-radius: 0;
-            text-shadow: 0 0 5px var(--matrix-glow);
         }
 
         .neon-btn {
             width: 100%;
-            background: rgba(0, 255, 102, 0.08);
+            background: rgba(0, 255, 102, 0.06);
             border: 1px solid var(--matrix-green);
             color: var(--matrix-green);
             padding: 16px;
@@ -121,13 +90,11 @@
             font-weight: bold;
             letter-spacing: 4px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .neon-btn:hover {
             background: var(--matrix-green);
-            color: #000;
-            box-shadow: 0 0 20px var(--matrix-green);
+            color: #000000;
         }
 
         .error-msg {
@@ -135,79 +102,46 @@
             font-size: 0.85rem;
             margin-top: 15px;
             font-weight: bold;
-            letter-spacing: 1px;
-            opacity: 0;
-            transition: opacity 0.2s;
+            display: none;
         }
 
-        /* --- 2. 多游戏中央存储主页 --- */
         #game-panel {
             width: 92vw;
             max-width: 1200px;
             height: 85vh;
-            display: none; /* 默认隐藏 */
+            display: none;
             flex-direction: column;
             opacity: 0;
-            transform: scale(0.96);
         }
 
         .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
             border-bottom: 1px dashed var(--matrix-green);
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
 
-        /* 密集型阵列网格 */
         .game-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
             overflow-y: auto;
             flex-grow: 1;
-            padding-right: 10px;
         }
 
-        /* 隐藏滚动条 */
-        .game-grid::-webkit-scrollbar { width: 5px; }
-        .game-grid::-webkit-scrollbar-thumb { background: var(--matrix-green); }
-
-        /* 工业机械感卡片样式 */
         .game-card {
-            background: rgba(0, 0, 0, 0.75);
-            border: 1px solid rgba(0, 255, 102, 0.2);
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 102, 0.25);
             padding: 24px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            position: relative;
-            transition: all 0.25s ease;
-        }
-
-        /* 卡片四角机械铆钉装饰 */
-        .game-card::before {
-            content: '●';
-            position: absolute;
-            top: 5px; right: 8px;
-            font-size: 0.6rem;
-            color: rgba(0, 255, 102, 0.3);
-        }
-
-        .game-card:hover {
-            border-color: var(--matrix-green);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.25);
-            background: rgba(0, 255, 102, 0.02);
         }
 
         .game-title {
             font-size: 1.4rem;
             font-weight: bold;
             color: #ffffff;
-            letter-spacing: 1px;
             margin-bottom: 4px;
-            text-transform: uppercase;
         }
 
         .game-url {
@@ -220,14 +154,13 @@
 
         .game-desc {
             font-size: 0.85rem;
-            color: rgba(0, 255, 102, 0.75);
+            color: rgba(0, 255, 102, 0.7);
             line-height: 1.6;
             margin-bottom: 30px;
             border-top: 1px dashed rgba(0, 255, 102, 0.15);
             padding-top: 12px;
         }
 
-        /* 底部独立的启动按钮 */
         .launch-btn {
             background: rgba(0, 255, 102, 0.05);
             border: 1px solid var(--matrix-green);
@@ -238,71 +171,113 @@
             font-weight: bold;
             font-size: 0.9rem;
             letter-spacing: 3px;
-            transition: all 0.2s;
             display: block;
         }
 
         .launch-btn:hover {
             background: var(--matrix-green);
             color: #000000;
-            box-shadow: 0 0 12px var(--matrix-green);
         }
     </style>
 </head>
 <body>
 
-    <!-- Canvas 重工业代码雨 -->
     <canvas id="canvas-matrix"></canvas>
     <div class="crt-overlay"></div>
 
-    <!-- 1. 严格密码锁控制面板 -->
+    <!-- 密码验证界面 -->
     <div class="terminal-container" id="auth-panel">
-        <div class="system-tag">SYS_RESRV // NODE_01</div>
         <div class="hud-title">CRITICAL_LOCK</div>
-        
-        <input type="password" id="password-field" class="crypto-input" placeholder="ENTER ACCESS KEY" maxlength="8" autocomplete="off" autofocus>
-        <button class="neon-btn" onclick="verifyKey()">[ EXECUTE DECRYPTION ]</button>
-        <div class="error-msg" id="error-prompt">⚠️ SECURITY ALERT: DECRYPTION FAILED</div>
+        <input type="password" id="password-field" class="crypto-input" placeholder="ENTER ACCESS KEY" maxlength="12" autocomplete="off" autofocus>
+        <button type="button" id="submit-btn" class="neon-btn">[ EXECUTE DECRYPTION ]</button>
+        <div class="error-msg" id="error-prompt">⚠️ ACCESS DENIED</div>
     </div>
 
-    <!-- 2. 多游戏主控存储矩阵 -->
+    <!-- 游戏矩阵主页 -->
     <div class="terminal-container" id="game-panel">
         <div class="panel-header">
-            <div>
-                <div class="system-tag">DECRYPT SUCCESS // DATA LINK ESTABLISHED</div>
-                <div class="hud-title" style="margin: 0; padding: 0; border: none; font-size: 1.8rem;">GAME STORAGE MATRIX</div>
-            </div>
-            <div style="font-size: 0.8rem; letter-spacing: 1px; color: rgba(0,255,102,0.6);">HOST_STATUS: LINKED_ONLINE</div>
+            <div class="hud-title" style="margin: 0; padding: 0; border: none; font-size: 1.8rem;">GAME STORAGE MATRIX</div>
         </div>
 
-        <!-- 容纳多个游戏的矩阵网格 -->
         <div class="game-grid">
-            
-            <!-- 核心节点 01：您的现代客户端 Minecraft -->
+            <!-- 游戏 1 -->
             <div class="game-card">
                 <div>
                     <div class="game-title">moderclient</div>
                     <span class="game-url">https://github.io</span>
-                    <div class="game-desc">基于底层网元架构与 Web 汇编环境编译的游戏核心。支持高动态响应模拟，原生 3D 物理矩阵沙盒。</div>
+                    <div class="game-desc">基于底层网元架构与 Web 汇编环境编译的游戏核心。支持高动态响应模拟。</div>
                 </div>
-                <!-- 启动按钮直接固定在最下方 -->
                 <a href="https://github.io" target="_blank" class="launch-btn">LAUNCH GAME</a>
             </div>
 
-            <!-- 挂载空置节点 02 -->
+            <!-- 空槽位 -->
             <div class="game-card" style="opacity: 0.25; border-style: dashed;">
                 <div>
                     <div class="game-title">[ EMPTY NODE_02 ]</div>
                     <span class="game-url">NONE // UNLINKED</span>
-                    <div class="game-desc">等待后续云端存储协议数据包注入。该独立分区当前处于闲置待命状态。</div>
+                    <div class="game-desc">等待后续云端存储协议数据包注入。</div>
                 </div>
-                <a href="#" class="launch-btn" style="pointer-events: none; border-color: rgba(0,255,102,0.2);">DISCONNECTED</a>
+                <a href="#" class="launch-btn" style="pointer-events: none;">DISCONNECTED</a>
             </div>
+        </div>
+    </div>
 
-            <!-- 挂载空置节点 03 -->
-            <div class="game-card" style="opacity: 0.25; border-style: dashed;">
-                <div>
-                    <div class="game-title">[ EMPTY NODE_03 ]</div>
-                    <span class="game-url">NONE // UNLINKED</span>
-                    <div class="game-desc">等待后续云端存储协议数据包注入。该独立分区当前处于闲置待命状态。</div>
-                </div>
+    <script>
+        // 代码雨引擎
+        const canvas = document.getElementById('canvas-matrix');
+        const ctx = canvas.getContext('2d');
+        function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+
+        const codeChars = "0101010101X78F6A2C9B8E3D5F017423984ADCF";
+        const fontSize = 16;
+        let columns = Math.floor(canvas.width / fontSize);
+        let rainDrops = Array(columns).fill(0).map(() => Math.floor(Math.random() * -30));
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(2, 4, 3, 0.14)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = 'bold ' + fontSize + 'px monospace';
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = codeChars.charAt(Math.floor(Math.random() * codeChars.length));
+                const x = i * fontSize; const y = rainDrops[i] * fontSize;
+                if (y > 0) {
+                    ctx.fillStyle = Math.random() > 0.98 ? '#ffffff' : `rgba(0, 255, 102, ${Math.random() * 0.4 + 0.6})`;
+                    ctx.fillText(text, x, y);
+                }
+                if (y > canvas.height && Math.random() > 0.98) { rainDrops[i] = 0; }
+                rainDrops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 33);
+
+        // 强效原生事件解密逻辑
+        const passwordInput = document.getElementById('password-field');
+        const submitButton = document.getElementById('submit-btn');
+        const errorPrompt = document.getElementById('error-prompt');
+        const authPanel = document.getElementById('auth-panel');
+        const gamePanel = document.getElementById('game-panel');
+
+        function doUnlockVerification() {
+            if (passwordInput.value.trim() === "76887") {
+                errorPrompt.style.display = "none";
+                authPanel.style.opacity = "0";
+                setTimeout(() => {
+                    authPanel.style.display = "none";
+                    gamePanel.style.display = "flex";
+                    gamePanel.offsetHeight; 
+                    gamePanel.style.opacity = "1";
+                }, 300);
+            } else {
+                errorPrompt.style.display = "block";
+                passwordInput.value = "";
+                passwordInput.focus();
+            }
+        }
+
+        submitButton.addEventListener('click', function(e) { e.preventDefault(); doUnlockVerification(); });
+        passwordInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); doUnlockVerification(); } });
+    </script>
+</body>
+</html>
